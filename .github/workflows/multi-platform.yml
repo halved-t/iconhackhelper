@@ -1,10 +1,10 @@
 name: Build Geode Mod
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "**"
-  workflow_dispatch:
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build the mod
-        uses: geode-sdk/build-geode-mod@v3
+        uses: geode-sdk/build-geode-mod@main
         with:
           combine: true
           target: ${{ matrix.config.target }}
@@ -50,15 +50,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: geode-sdk/build-geode-mod/combine@v3
+      - uses: geode-sdk/build-geode-mod/combine@main
         id: build
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Build Output
+          path: ${{ steps.build.outputs.build-output }}
       - name: Read version from mod.json
         id: version
         run: |
           VERSION=$(jq -r '.version' mod.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
