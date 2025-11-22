@@ -1,0 +1,29 @@
+{
+	"geode": "4.10.0",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "halved.iconhackhelper",
+	"name": "Icon Hack Helper",
+	"version": "v1.0.0",
+	"developer": "Halved",
+	"description": "Changes tint of icons unlocked with Icon Hack",
+	"dependencies": {
+		"geode.node-ids": ">=v1.20.0"
+	},
+	"tags": [
+		"enhancement",
+		"utility"
+	],
+	"settings": {
+		"show-debug-info": {
+			"type": "bool",
+			"default": false,
+			"name": "Show Debug Info",
+			"description": "Displays icon id numbers and adds a button to the icon kit (useless)"
+		}
+	}
+}
