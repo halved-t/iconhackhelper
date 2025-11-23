@@ -8,7 +8,7 @@
 	},
 	"id": "halved.iconhackhelper",
 	"name": "Icon Hack Helper",
-	"version": "v1.1.0",
+	"version": "v1.1.1",
 	"developer": "Halved",
 	"description": "Changes tint of icons unlocked with Icon Hack",
 	"dependencies": {
