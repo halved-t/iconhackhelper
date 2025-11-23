@@ -28,7 +28,8 @@
 	},
 	"resources": { 
 		"sprites": [
-		"resources/bg.png"
+		"resources/bg.png",
+		"resources/github_screenshot.jpg"
 		]
 	}
 }
