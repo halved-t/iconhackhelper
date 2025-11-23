@@ -28,7 +28,7 @@ bool isIconActuallyUnlocked(int iconID, IconType type) {
     
     std::string saveKey;
     switch (type) {
-        case IconType::Cube: saveKey = fmt::format("i_{}", iconID); break;
+        case IconType::Cube: saveKey = fmt::format("i_{}", iconID); break; // why is this one different robert
         case IconType::Ship: saveKey = fmt::format("ship_{}", iconID); break;
         case IconType::Ball: saveKey = fmt::format("ball_{}", iconID); break;
         case IconType::Ufo: saveKey = fmt::format("bird_{}", iconID); break;
@@ -38,7 +38,7 @@ bool isIconActuallyUnlocked(int iconID, IconType type) {
         case IconType::Swing: saveKey = fmt::format("swing_{}", iconID); break;
         case IconType::Jetpack: saveKey = fmt::format("jetpack_{}", iconID); break;
         default: 
-            // We don't know - let's get out
+            // We don't know - let's get out and say yes
             return true;
     }
     
@@ -65,13 +65,6 @@ class $modify(IconGarageLayer, GJGarageLayer) {
         IconType m_currentIconType = IconType::Cube;
     };
 
-    bool init() {
-        if (!GJGarageLayer::init())
-            return false;
-        
-        return true;
-    }
-
     void setupPage(int page, IconType type) {
         GJGarageLayer::setupPage(page, type);
         
@@ -79,12 +72,6 @@ class $modify(IconGarageLayer, GJGarageLayer) {
         m_fields->m_currentIconType = type;
         
         this->applyIconEffects();
-        
-        // Debug check
-        if (Mod::get()->getSettingValue<bool>("show-debug-info")) {
-            this->addStupidButton();
-            this->addIconNumbers();
-        }
     }
 
     void applyIconEffects() {
@@ -113,16 +100,15 @@ class $modify(IconGarageLayer, GJGarageLayer) {
                     iconSprite = typeinfo_cast<GJItemIcon*>(button->getChildren()->objectAtIndex(0));
                 }
                 
-                if (!isUnlocked) {
                     if (useOpacity) {
                         if (iconSprite) {
-                            iconSprite->setOpacity(128);
+                            iconSprite->setOpacity(isUnlocked? 255:128);
                         }
                     } else {
                         auto bg = CCSprite::create("bg.png"_spr);
                         if (bg) {
                             bg->setID("lock-indicator-bg"_spr);
-                            bg->setColor({255, 0, 0});
+                            bg->setColor((!isUnlocked) ? ccColor3B{255, 0, 0} : ccColor3B{0, 255, 0});
                             
                             auto buttonSize = button->getContentSize();
                             bg->setPosition(buttonSize / 2);
@@ -133,110 +119,6 @@ class $modify(IconGarageLayer, GJGarageLayer) {
                             button->addChild(bg);
                         }
                     }
-                } else {
-                    if (iconSprite) {
-                        iconSprite->setOpacity(255);
-                    }
-                    
-                    if (!useOpacity) {
-                        auto bg = CCSprite::create("bg.png"_spr);
-                        if (bg) {
-                            bg->setID("lock-indicator-bg"_spr);
-                            bg->setColor({0,255,0});
-                            
-                            auto buttonSize = button->getContentSize();
-                            bg->setPosition(buttonSize / 2);
-                            bg->setScale(buttonSize.width / bg->getContentSize().width);
-                            bg->setZOrder(-1);
-                            bg->setOpacity(55);
-                            
-                            button->addChild(bg);
-                        }
-                    }
-                }
-                
-                iconCount++;
-            }
-        }
-    }
-
-    void addStupidButton() {
-        auto page = findChildOfType<ListButtonPage>(this);
-        if (!page) return;
-
-        auto menu = findChildOfType<CCMenu>(page);
-        if (!menu) return;
-
-        if (menu->getChildByID("my-button"_spr)) return;
-
-        auto sprite = CCSprite::createWithSpriteFrameName("GJ_likeBtn_001.png");
-        auto button = CCMenuItemSpriteExtra::create(
-            sprite,
-            this,
-            menu_selector(IconGarageLayer::onMyButton)
-        );
-
-        button->setID("my-button"_spr);
-        menu->addChild(button);
-
-        if (auto layout = menu->getLayout()) {
-            layout->apply(menu);
-        }
-    }
-
-    void onMyButton(CCObject*) {
-        std::string iconTypeName;
-        switch (m_fields->m_currentIconType) {
-            case IconType::Cube: iconTypeName = "Cube"; break;
-            case IconType::Ship: iconTypeName = "Ship"; break;
-            case IconType::Ball: iconTypeName = "Ball"; break;
-            case IconType::Ufo: iconTypeName = "UFO"; break;
-            case IconType::Wave: iconTypeName = "Wave"; break;
-            case IconType::Robot: iconTypeName = "Robot"; break;
-            case IconType::Spider: iconTypeName = "Spider"; break;
-            case IconType::Swing: iconTypeName = "Swing"; break;
-            case IconType::Jetpack: iconTypeName = "Jetpack"; break;
-            default: iconTypeName = "Unknown"; break;
-        }
-        FLAlertLayer::create(
-            "debug info",
-            fmt::format("Page: {}\nType: {}", 
-                       m_fields->m_currentPage, 
-                       iconTypeName),
-            ":3"
-        )->show();
-    }
-
-    void addIconNumbers() {
-        auto page = findChildOfType<ListButtonPage>(this);
-        if (!page) return;
-
-        auto menu = findChildOfType<CCMenu>(page);
-        if (!menu) return;
-
-        int iconCount = 0;
-        auto children = menu->getChildren();
-        if (!children) return;
-
-        for (auto child : CCArrayExt<CCNode*>(children)) {
-            if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(child)) {
-                int iconNumber = (m_fields->m_currentPage * 36) + iconCount + 1;
-                
-                if (auto oldLabel = button->getChildByID("icon-number-label"_spr)) {
-                    oldLabel->removeFromParent();
-                }
-                
-                auto label = CCLabelBMFont::create(
-                    fmt::format("{}", iconNumber).c_str(),
-                    "bigFont.fnt"
-                );
-                label->setID("icon-number-label"_spr);
-                label->setScale(0.3f);
-                
-                auto buttonSize = button->getContentSize();
-                label->setPosition({buttonSize.width / 2, buttonSize.height + 10});
-                
-                button->addChild(label);
                 iconCount++;
             }
         }

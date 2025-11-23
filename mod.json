@@ -10,7 +10,7 @@
 	"name": "Icon Hack Helper",
 	"version": "v1.1.2",
 	"developer": "Halved",
-	"description": "Changes tint of icons unlocked with Icon Hack",
+	"description": "Shows locked icons while using Icon Hack",
 	"dependencies": {
 		"geode.node-ids": ">=v1.20.0"
 	},
@@ -19,17 +19,11 @@
 		"utility"
 	],
 	"settings": {
-		"show-debug-info": {
-			"type": "bool",
-			"default": false,
-			"name": "Show Debug Info",
-			"description": "Displays icon id numbers and adds a button to the icon kit (useless)"
-		},
 		"use-opacity-mode": {
         "type": "bool",
         "default": true,
         "name": "Use Opacity Mode",
-        "description": "Reduce locked icon opacity by 80% instead of adding background sprite"
+        "description": "Reduce locked icon opacity by 50% instead of adding background sprite"
     }
 	},
 	"resources": { 

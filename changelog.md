@@ -8,3 +8,4 @@
 # 1.1.2
 - Fixed cursor not appearing (behind) the colored background
 - Code cleanup
+- Removed debug stuff
