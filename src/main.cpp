@@ -128,6 +128,7 @@ class $modify(IconGarageLayer, GJGarageLayer) {
                             bg->setPosition(buttonSize / 2);
                             bg->setScale(buttonSize.width / bg->getContentSize().width);
                             bg->setZOrder(-1);
+                            bg->setOpacity(55);
                             
                             button->addChild(bg);
                         }
@@ -141,11 +142,13 @@ class $modify(IconGarageLayer, GJGarageLayer) {
                         auto bg = CCSprite::create("bg.png"_spr);
                         if (bg) {
                             bg->setID("lock-indicator-bg"_spr);
+                            bg->setColor({0,255,0});
                             
                             auto buttonSize = button->getContentSize();
                             bg->setPosition(buttonSize / 2);
                             bg->setScale(buttonSize.width / bg->getContentSize().width);
                             bg->setZOrder(-1);
+                            bg->setOpacity(55);
                             
                             button->addChild(bg);
                         }

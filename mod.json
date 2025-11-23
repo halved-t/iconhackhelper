@@ -8,7 +8,7 @@
 	},
 	"id": "halved.iconhackhelper",
 	"name": "Icon Hack Helper",
-	"version": "v1.1.1",
+	"version": "v1.1.2",
 	"developer": "Halved",
 	"description": "Changes tint of icons unlocked with Icon Hack",
 	"dependencies": {
@@ -27,7 +27,7 @@
 		},
 		"use-opacity-mode": {
         "type": "bool",
-        "default": false,
+        "default": true,
         "name": "Use Opacity Mode",
         "description": "Reduce locked icon opacity by 80% instead of adding background sprite"
     }
