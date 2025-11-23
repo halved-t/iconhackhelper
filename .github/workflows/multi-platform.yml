@@ -48,6 +48,8 @@ jobs:
     needs: ['build']
 
     steps:
+      - uses: actions/checkout@v4
+
       - uses: geode-sdk/build-geode-mod/combine@main
         id: build
 
@@ -55,3 +57,15 @@ jobs:
         with:
           name: Build Output
           path: ${{ steps.build.outputs.build-output }}
+      - name: Read version from mod.json
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' mod.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ steps.version.outputs.version }}"
+          name: "Version ${{ steps.version.outputs.version }}"
+          body: "Automated release for version ${{ steps.version.outputs.version }}"
+          files: ${{ steps.build.outputs.build-output }}/*
