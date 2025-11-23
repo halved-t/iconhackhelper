@@ -19,6 +19,44 @@ template <typename T> T* findChildOfType(CCNode* root) {
     return nullptr;
 }
 
+bool isIconActuallyUnlocked(int iconID, IconType type) {
+    // Exceptions (these aren't stored in the save file)
+    if (iconID == 1 || (type == IconType::Cube && (iconID == 2 || iconID == 3 || iconID == 4))) 
+        return true;
+    
+    auto gm = GameManager::sharedState();
+    
+    std::string saveKey;
+    switch (type) {
+        case IconType::Cube: saveKey = fmt::format("i_{}", iconID); break;
+        case IconType::Ship: saveKey = fmt::format("ship_{}", iconID); break;
+        case IconType::Ball: saveKey = fmt::format("ball_{}", iconID); break;
+        case IconType::Ufo: saveKey = fmt::format("bird_{}", iconID); break;
+        case IconType::Wave: saveKey = fmt::format("dart_{}", iconID); break;
+        case IconType::Robot: saveKey = fmt::format("robot_{}", iconID); break;
+        case IconType::Spider: saveKey = fmt::format("spider_{}", iconID); break;
+        case IconType::Swing: saveKey = fmt::format("swing_{}", iconID); break;
+        case IconType::Jetpack: saveKey = fmt::format("jetpack_{}", iconID); break;
+        default: return false;
+    }
+    
+    auto valueKeeper = gm->m_valueKeeper;
+    if (!valueKeeper) return false;
+    
+    auto valueObj = valueKeeper->objectForKey(saveKey);
+    if (!valueObj) return false;
+    
+    if (auto boolObj = typeinfo_cast<CCBool*>(valueObj)) {
+        return boolObj->getValue();
+    }
+    
+    if (auto strObj = typeinfo_cast<CCString*>(valueObj)) {
+        return strObj->getCString() == std::string("1");
+    }
+    
+    return false;
+}
+
 class $modify(IconGarageLayer, GJGarageLayer) {
     struct Fields {
         int m_currentPage = 0;
@@ -38,60 +76,23 @@ class $modify(IconGarageLayer, GJGarageLayer) {
         m_fields->m_currentPage = page;
         m_fields->m_currentIconType = type;
         
-        this->applyTint();
+        this->applyIconEffects();
         
-        // debug check
+        // Debug check
         if (Mod::get()->getSettingValue<bool>("show-debug-info")) {
             this->addStupidButton();
             this->addIconNumbers();
         }
     }
 
-    bool isIconActuallyUnlocked(int iconID, IconType type) {
-        // exceptions (these arent stored in the save file)
-        if (iconID == 1 || (type == IconType::Cube && (iconID == 2 || iconID == 3 || iconID == 4))) return true;
-        
-        auto gm = GameManager::sharedState();
-        
-        std::string saveKey;
-        switch (type) {
-            case IconType::Cube: saveKey = fmt::format("i_{}", iconID); break; // why the fuck is this one different robert
-            case IconType::Ship: saveKey = fmt::format("ship_{}", iconID); break;
-            case IconType::Ball: saveKey = fmt::format("ball_{}", iconID); break;
-            case IconType::Ufo: saveKey = fmt::format("bird_{}", iconID); break;
-            case IconType::Wave: saveKey = fmt::format("dart_{}", iconID); break;
-            case IconType::Robot: saveKey = fmt::format("robot_{}", iconID); break;
-            case IconType::Spider: saveKey = fmt::format("spider_{}", iconID); break;
-            case IconType::Swing: saveKey = fmt::format("swing_{}", iconID); break;
-            case IconType::Jetpack: saveKey = fmt::format("jetpack_{}", iconID); break;
-            default: return false;
-        }
-        
-        // Get value from save file
-        auto valueKeeper = gm->m_valueKeeper;
-        if (!valueKeeper) return false;
-        
-        auto valueObj = valueKeeper->objectForKey(saveKey);
-        if (!valueObj) return false;
-        
-        if (auto boolObj = typeinfo_cast<CCBool*>(valueObj)) {
-            return boolObj->getValue();
-        }
-        
-        if (auto strObj = typeinfo_cast<CCString*>(valueObj)) {
-            return strObj->getCString() == std::string("1");
-        }
-        
-        return false;
-    }
-
-    void applyTint() {
+    void applyIconEffects() {
         auto page = findChildOfType<ListButtonPage>(this);
         if (!page) return;
 
         auto menu = findChildOfType<CCMenu>(page);
         if (!menu) return;
 
+        bool useOpacity = Mod::get()->getSettingValue<bool>("use-opacity-mode");
         int iconCount = 0;
         auto children = menu->getChildren();
         if (!children) return;
@@ -101,20 +102,51 @@ class $modify(IconGarageLayer, GJGarageLayer) {
                 int iconNumber = (m_fields->m_currentPage * 36) + iconCount + 1;  
                 bool isUnlocked = isIconActuallyUnlocked(iconNumber, m_fields->m_currentIconType);
                 
-                // nesting
-                if (auto gjItemIcon = typeinfo_cast<GJItemIcon*>(button->getChildren()->objectAtIndex(0))) {
-                    if (auto simplePlayer = typeinfo_cast<SimplePlayer*>(gjItemIcon->getChildren()->objectAtIndex(0))) {
-                        auto sprites = simplePlayer->getChildren();
-                        if (sprites) {
-                            for (auto spriteNode : CCArrayExt<CCNode*>(sprites)) {
-                                if (auto sprite = typeinfo_cast<CCSprite*>(spriteNode)) {
-                                    if (!isUnlocked) {
-                                        sprite->setColor({255, 0, 0}); // Locked
-                                    } else {
-                                        sprite->setColor({0, 255, 0}); // Unlocked
-                                    }
-                                }
-                            }
+                if (auto oldBg = button->getChildByID("lock-indicator-bg"_spr)) {
+                    oldBg->removeFromParent();
+                }
+                
+                GJItemIcon* iconSprite = nullptr;
+                if (button->getChildren() && button->getChildren()->count() > 0) {
+                    iconSprite = typeinfo_cast<GJItemIcon*>(button->getChildren()->objectAtIndex(0));
+                }
+                
+                if (!isUnlocked) {
+                    if (useOpacity) {
+                        if (iconSprite) {
+                            iconSprite->setOpacity(128);
+                        }
+                    } else {
+                        auto bg = CCSprite::create("bg.png"_spr);
+                        if (bg) {
+                            bg->setID("lock-indicator-bg"_spr);
+                            bg->setColor({255, 0, 0});
+                            
+                            auto buttonSize = button->getContentSize();
+                            bg->setPosition(buttonSize / 2);
+                            bg->setScale(buttonSize.width / bg->getContentSize().width);
+                            bg->setZOrder(-1);
+                            
+                            button->addChild(bg);
+                        }
+                    }
+                } else {
+                    if (iconSprite) {
+                        iconSprite->setOpacity(255);
+                    }
+                    
+                    if (!useOpacity) {
+                        auto bg = CCSprite::create("bg.png"_spr);
+                        if (bg) {
+                            bg->setID("lock-indicator-bg"_spr);
+                            bg->setColor({0, 255, 0});
+
+                            auto buttonSize = button->getContentSize();
+                            bg->setPosition(buttonSize / 2);
+                            bg->setScale(buttonSize.width / bg->getContentSize().width);
+                            bg->setZOrder(-1);
+                            
+                            button->addChild(bg);
                         }
                     }
                 }
@@ -126,23 +158,13 @@ class $modify(IconGarageLayer, GJGarageLayer) {
 
     void addStupidButton() {
         auto page = findChildOfType<ListButtonPage>(this);
-        if (!page) {
-            log::warn("ListButtonPage not found");
-            return;
-        }
+        if (!page) return;
 
         auto menu = findChildOfType<CCMenu>(page);
-        if (!menu) {
-            log::warn("CCMenu not found");
-            return;
-        }
+        if (!menu) return;
 
-        // Check for button
-        if (menu->getChildByID("my-button"_spr)) {
-            return;
-        }
+        if (menu->getChildByID("my-button"_spr)) return;
 
-        // Create button
         auto sprite = CCSprite::createWithSpriteFrameName("GJ_likeBtn_001.png");
         auto button = CCMenuItemSpriteExtra::create(
             sprite,
@@ -153,7 +175,6 @@ class $modify(IconGarageLayer, GJGarageLayer) {
         button->setID("my-button"_spr);
         menu->addChild(button);
 
-        // Reapply layout
         if (auto layout = menu->getLayout()) {
             layout->apply(menu);
         }
