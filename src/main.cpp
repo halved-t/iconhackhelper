@@ -20,7 +20,7 @@ template <typename T> T* findChildOfType(CCNode* root) {
 }
 
 bool isIconActuallyUnlocked(int iconID, IconType type) {
-    // Exceptions (these aren't stored in the save file)
+    // Exceptions (these aren't stored in the save file) (i think)
     if (iconID == 1 || (type == IconType::Cube && (iconID == 2 || iconID == 3 || iconID == 4))) 
         return true;
     
@@ -37,7 +37,9 @@ bool isIconActuallyUnlocked(int iconID, IconType type) {
         case IconType::Spider: saveKey = fmt::format("spider_{}", iconID); break;
         case IconType::Swing: saveKey = fmt::format("swing_{}", iconID); break;
         case IconType::Jetpack: saveKey = fmt::format("jetpack_{}", iconID); break;
-        default: return false;
+        default: 
+            // We don't know - let's get out
+            return true;
     }
     
     auto valueKeeper = gm->m_valueKeeper;
@@ -139,8 +141,7 @@ class $modify(IconGarageLayer, GJGarageLayer) {
                         auto bg = CCSprite::create("bg.png"_spr);
                         if (bg) {
                             bg->setID("lock-indicator-bg"_spr);
-                            bg->setColor({0, 255, 0});
-
+                            
                             auto buttonSize = button->getContentSize();
                             bg->setPosition(buttonSize / 2);
                             bg->setScale(buttonSize.width / bg->getContentSize().width);
