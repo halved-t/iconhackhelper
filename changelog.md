@@ -9,3 +9,5 @@
 - Fixed cursor not appearing (behind) the colored background
 - Code cleanup
 - Removed debug stuff
+# 1.1.3
+- Added support for trails, death effects and rewards. (Thank you Jasmine)
