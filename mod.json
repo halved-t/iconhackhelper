@@ -8,7 +8,7 @@
 	},
 	"id": "halved.iconhackhelper",
 	"name": "Icon Hack Helper",
-	"version": "v1.1.2",
+	"version": "v1.1.3",
 	"developer": "Halved",
 	"description": "Shows locked icons while using Icon Hack",
 	"dependencies": {
