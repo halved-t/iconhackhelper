@@ -1,17 +1,17 @@
 {
-	"geode": "4.10.0",
+	"geode": "6.0.0-beta.1",
 	"gd": {
-		"win": "2.2081",
-		"android": "2.2081",
-		"mac": "2.2081"
+		"win": "2.2091",
+		"android": "2.2091",
+		"mac": "2.2091"
 	},
 	"id": "halved.iconhackhelper",
 	"name": "Icon Hack Helper",
-	"version": "v1.1.3",
+	"version": "v1.1.4",
 	"developer": "Halved",
 	"description": "Shows locked icons while using Icon Hack",
 	"dependencies": {
-		"geode.node-ids": ">=v1.20.0"
+		"geode.node-ids": ">=v1.23.0"
 	},
 	"tags": [
 		"enhancement",
@@ -29,7 +29,7 @@
 		"sprites": [
 		"resources/bg.png",
 		"resources/github_screenshot.jpg",
-  "resources/github_screenshot.png"
+  		"resources/github_screenshot.png"
 		]
 	}
 }

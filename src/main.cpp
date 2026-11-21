@@ -10,7 +10,7 @@ bool isIconActuallyUnlocked(int iconID, IconType type) {
     
     auto gm = GameManager::sharedState();
     
-    gd::string saveKey = gm->iconKey(iconID, type);
+    std::string saveKey = gm->iconKey(iconID, type);
     
     auto valueKeeper = gm->m_valueKeeper;
     if (!valueKeeper) return false;

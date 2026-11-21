@@ -22,6 +22,8 @@ else()
     message(STATUS "Found Geode: $ENV{GEODE_SDK}")
 endif()
 
+set(FMT_MODULE OFF CACHE BOOL "why u no work" FORCE)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
 # Set up dependencies, resources, and link Geode.

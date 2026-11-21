@@ -11,3 +11,5 @@
 - Removed debug stuff
 # 1.1.3
 - Added support for trails, death effects and rewards. (Thank you Jasmine)
+# 1.1.4
+- updated for compat with 2.2091
