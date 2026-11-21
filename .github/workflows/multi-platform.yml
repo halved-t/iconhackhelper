@@ -18,9 +18,9 @@ jobs:
         - name: macOS
           os: macos-latest
 
-#        - name: iOS
-#          os: macos-latest
-#          target: iOS
+        - name: iOS
+          os: macos-latest
+          target: iOS
 
         - name: Android32
           os: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
@@ -48,17 +48,10 @@ jobs:
     needs: ['build']
 
     steps:
-      - uses: actions/checkout@v4
-
       - uses: geode-sdk/build-geode-mod/combine@main
         id: build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Build Output
           path: ${{ steps.build.outputs.build-output }}
-      - name: Read version from mod.json
-        id: version
-        run: |
-          VERSION=$(jq -r '.version' mod.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
